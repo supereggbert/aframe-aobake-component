@@ -1,6 +1,3 @@
-
-
-﻿
 # AO Bake Component
 
 The AO bake is a component created for [A-Frame](https://aframe.io/). It will automatically bake the ambient occlusion to the vertex colors to geometry of meshes. 
