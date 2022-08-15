@@ -51,7 +51,7 @@ Install and use by directly including the  browser files:
 ```html
 <head>
   <title>My A-Frame Scene</title>
-  <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
   <script src="http://supereggbert.github.io/aframe-aobake-component/dist/build.js"></script>
 </head>
 ```
