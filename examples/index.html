@@ -9,11 +9,11 @@
         <img id="noise" src="assets/noise.jpg">
       </a-assets>
       <a-entity aobake="sample-rate:4; gamma:3; distance:15;">
-        <a-plane position="0 0 -3" rotation="-90 0 0" width="12" height="8" material="vertexColors:vertex; src:#noise; repeat: 8 8; color:#b04646;" segments-height="32" segments-width="32"></a-plane>
-        <a-plane position="0 3 -7" rotation="0 0 0" width="12" height="6" material="vertexColors:vertex; src:#noise; repeat: 6 3; color:#77a8a9;" segments-height="16" segments-width="16"></a-plane>
-        <a-plane position="-6 3 -3" rotation="0 90 0" width="8" height="6" material="vertexColors:vertex; src:#noise; repeat: 6 3; color:#498334;" segments-height="16" segments-width="16"></a-plane>
-        <a-plane position="6 3 -3" rotation="0 -90 0" width="8" height="6" material="vertexColors:vertex; src:#noise; repeat: 6 3; color:#498334;" segments-height="16" segments-width="16"></a-plane>
-        <a-torus-knot material="vertexColors:vertex; src:#noise; repeat: 10 2; color:yellow;" position="0 1.9 -4" arc="180" p="2" q="3" radius="1" radius-tubular="0.2" segments-radial="16"></a-torus-knot>
+        <a-plane position="0 0 -3" rotation="-90 0 0" width="12" height="8" material="src:#noise; repeat: 8 8; color:#b04646;" segments-height="32" segments-width="32"></a-plane>
+        <a-plane position="0 3 -7" rotation="0 0 0" width="12" height="6" material="src:#noise; repeat: 6 3; color:#77a8a9;" segments-height="16" segments-width="16"></a-plane>
+        <a-plane position="-6 3 -3" rotation="0 90 0" width="8" height="6" material="src:#noise; repeat: 6 3; color:#498334;" segments-height="16" segments-width="16"></a-plane>
+        <a-plane position="6 3 -3" rotation="0 -90 0" width="8" height="6" material="src:#noise; repeat: 6 3; color:#498334;" segments-height="16" segments-width="16"></a-plane>
+        <a-torus-knot material="src:#noise; repeat: 10 2; color:yellow;" position="0 1.9 -4" arc="180" p="2" q="3" radius="1" radius-tubular="0.2" segments-radial="16"></a-torus-knot>
       </a-entity>      
       <a-sky color="#555555"></a-sky>
     </a-scene>

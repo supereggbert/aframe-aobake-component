@@ -67,6 +67,7 @@ class AOBake {
       if (obj.type == "Mesh") {
         if (obj.geometry.index) obj.geometry = obj.geometry.toNonIndexed();
         obj.material.vertexColors = THREE.VertexColors;
+        obj.material.needsUpdate = true;
         positions = obj.geometry.attributes.position.array;
         normals = obj.geometry.attributes.normal.array;
         transform = obj.matrixWorld;
