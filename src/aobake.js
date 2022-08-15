@@ -11,6 +11,11 @@ class AOBake {
     this.distance = distance;
     this.normalVector = new THREE.Vector3;
     this.positionVector = new THREE.Vector3;
+    this.centerVector = new THREE.Vector3;
+    this.scalar = 1 + EPSILON * 10;
+    this.scalarDivBy3 = 1 / 3;
+    this.normalVectorTmp = new THREE.Vector3;
+    this.normalMatrix = new THREE.Matrix3;
     this.sampleRay = new THREE.Ray;
     this.sampleCache = {};
     this.buildSamples();
@@ -42,43 +47,51 @@ class AOBake {
       obj.updateWorldMatrix();
     });
   }
-  getNormalOffset(x, y, z, matrix, distance) {
-    return this.normalVector.set(x, y, z).applyMatrix3(matrix).multiplyScalar(-distance);
+  getNormalOffset(v, matrix, distance) {
+    return v.applyMatrix3(matrix).multiplyScalar(-distance);
   }
-  getAdjustedPosition(x, y, z, matrix, normalOffset) {
-    return new THREE.Vector3(x, y, z).applyMatrix4(matrix).add(normalOffset);
+  getAdjustedPosition(v, matrix, normalOffset) {
+    return v.applyMatrix4(matrix).add(normalOffset);
   }
   scaleTriangle(triangle) {
     var v1 = triangle.a,
       v2 = triangle.b,
       v3 = triangle.c;
-    var center = v1.clone().add(v2).add(v3).multiplyScalar(1 / 3);
-    v1.sub(center).multiplyScalar(1 + EPSILON * 10).add(center);
-    v2.sub(center).multiplyScalar(1 + EPSILON * 10).add(center);
-    v3.sub(center).multiplyScalar(1 + EPSILON * 10).add(center);
+    var center = this.centerVector.copy(v1).add(v2).add(v3).multiplyScalar(this.scalarDivBy3);
+    v1.sub(center).multiplyScalar(this.scalar).add(center);
+    v2.sub(center).multiplyScalar(this.scalar).add(center);
+    v3.sub(center).multiplyScalar(this.scalar).add(center);
     return triangle;
   }
   buildOctree() {
     this.updateTransforms();
     var octree = new Octree(),
       offsetDistance = EPSILON,
-      positions, normals, transform, normalMatrix, v1, v2, v3;
+      transform, normalMatrix, v1, v2, v3;
     this.graphNode.traverse((obj) => {
-      if (obj.type == "Mesh") {
-        if (obj.geometry.index) obj.geometry = obj.geometry.toNonIndexed();
+      if (obj.isMesh === true) {
+        if (obj.geometry.index !== null) {
+          const geometry = obj.geometry;
+          obj.geometry = obj.geometry.toNonIndexed();
+          geometry.dispose();
+        } else {
+          const geometry = obj.geometry;
+          obj.geometry = obj.geometry.clone(); // Geometry needs to be unique so clone it
+          geometry.dispose();
+        }
         obj.material.vertexColors = THREE.VertexColors;
         obj.material.needsUpdate = true;
-        positions = obj.geometry.attributes.position.array;
-        normals = obj.geometry.attributes.normal.array;
+        const positionAttribute = obj.geometry.getAttribute('position');
+        const normalAttribute = obj.geometry.getAttribute('normal');
         transform = obj.matrixWorld;
-        normalMatrix = new THREE.Matrix3().getNormalMatrix(obj.matrixWorld);
-        for (let i = 0; i < positions.length; i += 9) {
-          var normalOffset = this.getNormalOffset(normals[i], normals[i + 1], normals[i + 2], normalMatrix, offsetDistance);
-          v1 = this.getAdjustedPosition(positions[i], positions[i + 1], positions[i + 2], transform, normalOffset);
-          var normalOffset = this.getNormalOffset(normals[i + 3], normals[i + 4], normals[i + 5], normalMatrix, offsetDistance);
-          v2 = this.getAdjustedPosition(positions[i + 3], positions[i + 4], positions[i + 5], transform, normalOffset);
-          var normalOffset = this.getNormalOffset(normals[i + 6], normals[i + 7], normals[i + 8], normalMatrix, offsetDistance);
-          v3 = this.getAdjustedPosition(positions[i + 6], positions[i + 7], positions[i + 8], transform, normalOffset);
+        normalMatrix = this.normalMatrix.getNormalMatrix(obj.matrixWorld);
+        for (let i = 0; i < positionAttribute.count; i += 3) {
+          var normalOffset = this.getNormalOffset(this.normalVector.fromBufferAttribute(normalAttribute, i), normalMatrix, offsetDistance);
+          v1 = this.getAdjustedPosition(new THREE.Vector3().fromBufferAttribute(positionAttribute, i), transform, normalOffset);
+          var normalOffset = this.getNormalOffset(this.normalVector.fromBufferAttribute(normalAttribute, i + 1), normalMatrix, offsetDistance);
+          v2 = this.getAdjustedPosition(new THREE.Vector3().fromBufferAttribute(positionAttribute, i + 1), transform, normalOffset);
+          var normalOffset = this.getNormalOffset(this.normalVector.fromBufferAttribute(normalAttribute, i + 2), normalMatrix, offsetDistance);
+          v3 = this.getAdjustedPosition(new THREE.Vector3().fromBufferAttribute(positionAttribute, i + 2), transform, normalOffset);
           octree.addTriangle(this.scaleTriangle(new THREE.Triangle(v1, v2, v3)));
         }
       }
@@ -95,7 +108,7 @@ class AOBake {
       ao_distance = this.distance,
       octree = this.octree;
     if (this.sampleCache[hash]) return this.sampleCache[hash];
-    position.add(normal.clone().multiplyScalar(EPSILON * 10));
+    position.add(this.normalVectorTmp.copy(normal).multiplyScalar(EPSILON * 10));
     for (let i = 0; i < samples.length; i++) {
       var dir = samples[i].dot(normal);
       if (dir < 0) {
@@ -120,10 +133,8 @@ class AOBake {
     this.buildOctree();
     var octree = this.octree;
     this.graphNode.traverse((obj) => {
-      if (obj.type == "Mesh") {
-        obj.geometry = obj.geometry.clone(); // Geometry needs to be unique so clone it
-
-        var normalMatrix = new THREE.Matrix3().getNormalMatrix(obj.matrixWorld),
+      if (obj.isMesh === true) {
+        var normalMatrix = this.normalMatrix.getNormalMatrix(obj.matrixWorld),
           positions = obj.geometry.attributes.position.array,
           normals = obj.geometry.attributes.normal.array;
 
