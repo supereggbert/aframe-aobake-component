@@ -35,11 +35,18 @@ AFRAME.registerComponent('aobake', {
     elements.map((el) => {
       var component, components = el.components;
       for (component in components) {
+        // This is working for gltf-model component, may not work with
+        // other ways of loading a model.
         if (components[component].hasOwnProperty('loader')) {
           promises.push(new Promise(resolve => {
-            el.addEventListener('model-loaded', () => {
+            if (components[component].hasOwnProperty('model')) {
+              // model already loaded
               resolve();
-            });
+            } else {
+              el.addEventListener('model-loaded', () => {
+                resolve();
+              });
+            }
           }));
         }
       }
