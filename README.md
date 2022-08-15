@@ -38,7 +38,7 @@ To use the component you just add the component to the A-Frame entity containing
 <a-scene>
     <a-entity aobake>
       <a-torus-knot material="color: #fff" position="0 1 -4" arc="180" p="2" q="3" radius="1" radius-tubular="0.2"></a-torus-knot>
-	  </a-entity>
+    </a-entity>
 </a-scene>
 ```
 
@@ -51,7 +51,7 @@ Install and use by directly including the  browser files:
 ```html
 <head>
   <title>My A-Frame Scene</title>
-  <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
   <script src="http://supereggbert.github.io/aframe-aobake-component/dist/build.js"></script>
 </head>
 ```

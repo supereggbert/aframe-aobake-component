@@ -1,3 +1,6 @@
+const _v1 = new THREE.Vector3();
+const _v2 = new THREE.Vector3()
+
 class Octree {
   constructor(box) {
     this.triangles = [];
@@ -13,7 +16,6 @@ class Octree {
     this.bounds.max.y = Math.max(this.bounds.max.y, tri.a.y, tri.b.y, tri.c.y);
     this.bounds.max.z = Math.max(this.bounds.max.z, tri.a.z, tri.b.z, tri.c.z);
     this.triangles.push(tri);
-    this.intersect = new THREE.Vector3;
   }
   calcBox() {
     this.box = this.bounds.clone();
@@ -21,15 +23,15 @@ class Octree {
   split(level) {
     if (!this.box) return;
     var subTrees = [],
-      halfsize = this.box.max.clone().sub(this.box.min).multiplyScalar(0.5),
+      halfsize = _v2.copy(this.box.max).sub(this.box.min).multiplyScalar(0.5),
       box, v, tri;
     for (let x = 0; x < 2; x++) {
       for (let y = 0; y < 2; y++) {
         for (let z = 0; z < 2; z++) {
           box = new THREE.Box3;
-          v = new THREE.Vector3(x, y, z);
-          box.min = this.box.min.clone().add(v.multiply(halfsize))
-          box.max = box.min.clone().add(halfsize);
+          v = _v1.set(x, y, z);
+          box.min.copy(this.box.min).add(v.multiply(halfsize))
+          box.max.copy(box.min).add(halfsize);
           subTrees.push(new Octree(box));
         }
       }
@@ -58,7 +60,7 @@ class Octree {
   getRayTris(ray, triangles) {
     for (let i = 0; i < this.subTrees.length; i++) {
       var subTree = this.subTrees[i];
-      if (!ray.intersectBox(subTree.box, this.intersect)) continue;
+      if (!ray.intersectBox(subTree.box, _v1)) continue;
       if (subTree.triangles.length > 0) {
         for (let j = 0; j < subTree.triangles.length; j++) {
           if (triangles.indexOf(subTree.triangles[j]) == -1) triangles.push(subTree.triangles[j])
@@ -75,7 +77,7 @@ class Octree {
       result;
     this.getRayTris(ray, tris);
     for (let i = 0; i < tris.length; i++) {
-      result = ray.intersectTriangle(tris[i].a, tris[i].b, tris[i].c, false, this.intersect);
+      result = ray.intersectTriangle(tris[i].a, tris[i].b, tris[i].c, false, _v1);
       if (result) {
         distance = Math.min(distance, result.sub(ray.origin).length())
       }
