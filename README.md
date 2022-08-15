@@ -38,7 +38,7 @@ To use the component you just add the component to the A-Frame entity containing
 <a-scene>
     <a-entity aobake>
       <a-torus-knot material="color: #fff" position="0 1 -4" arc="180" p="2" q="3" radius="1" radius-tubular="0.2"></a-torus-knot>
-	  </a-entity>
+    </a-entity>
 </a-scene>
 ```
 
